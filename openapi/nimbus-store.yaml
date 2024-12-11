@@ -389,13 +389,14 @@ components:
   schemas:
     Files:
       type: object
+      description: Accepts all kinds of files including PDFs, photos (e.g., JPG, PNG), audio files (e.g., WAV, MP3), video files (e.g., MP4), and many more.
       required:
         - file_name
         - file_content
       properties:
         file_name:
           type: string
-          description: The name of the file being uploaded.
+          description: The name of the file being uploaded. 
           example: "document.pdf"
         file_content:
           type: string
