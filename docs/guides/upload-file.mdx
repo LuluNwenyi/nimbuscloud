@@ -1,0 +1,216 @@
+---
+sidebar_position: 1
+title: Uploading files on NimbusCloud
+id: upload-files
+---
+
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# How to upload a file to NimbusStore
+
+When you upload a file to NimbusCloud, it is stored as an object in NimbusStore, and you can manage an unlimited amount of objects in your account. Additionally, you can organise files into folders for easier categorisation. 
+
+NimbusStore accepts all file kinds, including PDFs, photos (e.g., JPG, PNG), audio files (e.g., WAV, MP3), video files (e.g., MP4), and many more, within the limit of 100GB **per upload**.
+
+You can upload a file to your NimbusStore in different ways.
+
+### Using Nimbus REST API
+
+To upload an object through the NimbusAPI:
+
+1. Obtain your API access token (with file upload permissions) from the NimbusCloud Console. If you don’t have one, login to your NimbusCloud Console and generate an API token from the dashboard. 
+2. Convert your file into Base64 format. Most programming languages provide libraries for this (e.g., `base64` library in Python).
+3. Create a JSON object with the request body parameters to build your request payload.
+    
+    ```json title="Request Body"
+    {
+      "file_name": "example_document.pdf",
+      "file_content": "SGVsbG8sIHRoaXMgaXMgYSBmaWxlLg==",
+      "folder": "project_docs/2024",
+      "metadata": {
+        "description": "A sample document for project planning.",
+    	  "tags": ["project", "planning", "2024"]
+     }
+    }
+    ```
+    
+4. Send a `POST` request to our `UploadFile` endpoint using a `HTTP` client like `cURL`, or a library in your preferred language.
+  <Tabs>
+  <TabItem value="bash" label="cURL">
+
+  ```bash title="cURL Request"
+      curl -X POST https://api.example.com/cloud/files/upload \
+      -H "Content-Type: multipart/form-data" \
+      -H "Authorization: Bearer your_access_token" \
+      -d '{
+        "file_name": "example_document.pdf",
+        "file_content": "SGVsbG8sIHRoaXMgaXMgYSBmaWxlLg==",
+        "folder": "v1.0",
+        "metadata": {
+          "description": "First draft for 2025 project planning.",
+          "tags": ["v1.0"]
+        }
+      }'
+      ```
+
+  </TabItem>
+  <TabItem value="python" label="Python">
+
+  ```python title="Python (with Requests lib)"
+  import requests
+  import base64
+
+  # Endpoint and API token
+  url = "https://api.nimbuscloud.com/v1/cloud/files/upload"
+  api_token = "ACCESS_TOKEN"
+
+  # Prepare payload
+  file_path = "path/to/your/example_document.pdf"
+  with open(file_path, "rb") as file:
+      file_content = base64.b64encode(file.read()).decode("utf-8")
+
+  payload = {
+      "file_name": "example_document.pdf",
+      "file_content": file_content,
+      "folder": "my_folder",  # Optional
+      "metadata": {"description": "First draft for 2025 project planning.",  # Optional
+                    "tags": "v1.0"  # Optional}    
+          }
+
+  # Send request
+  headers = {"Authorization": f"Bearer {api_token}"}
+  response = requests.post(url, headers=headers, data=payload)
+
+  if response.status_code == 200:
+      print("File uploaded successfully:", response.json())
+  else:
+      print("Error:", response.status_code, response.text)
+  ```
+
+  </TabItem>
+  <TabItem value="js" label="Node.js">
+
+  ```javascript title="Node.js Request"
+  const axios = require('axios');
+  const fs = require('fs');
+
+  // Endpoint and API token
+  const url = "https://api.nimbuscloud.com/v1/cloud/files/upload";
+  const apiToken = "ACCESS_TOKEN";
+
+  // Prepare payload
+  const filePath = "path/to/your/example_document.pdf";
+  const fileContent = fs.readFileSync(filePath).toString('base64');
+
+  const formData = {
+      file_name: "example_document.pdf",
+      file_content: fileContent,
+      folder: "my_folder", // Optional
+      metadata: JSON.stringify({ description: "First draft for 2025 project planning.", // Optional
+                                tags: "v1.0" // Optional }
+      };
+
+  // Send request
+  axios.post(url, formData, {
+      headers: {
+          "Authorization": `Bearer ${apiToken}`,
+          "Content-Type": "multipart/form-data"
+      }
+  }).then(response => {
+      console.log("File uploaded successfully:", response.data);
+  }).catch(error => {
+      console.error("Error:", error.response.status, error.response.data);
+  });
+  ```
+
+  </TabItem>
+  <TabItem value="go" label="Go">
+
+  ```go title="GoLang Request"
+      package main
+
+      import (
+        "bytes"
+        "encoding/base64"
+        "fmt"
+        "io/ioutil"
+        "mime/multipart"
+        "net/http"
+        "os"
+      )
+
+      func main() {
+        url := "https://api.nimbuscloud.com/v1/cloud/files/upload"
+        apiToken := "ACCESS_TOKEN"
+
+        // Read file and encode in Base64
+        filePath := "path/to/your/example_document.pdf"
+        fileData, err := ioutil.ReadFile(filePath)
+        if err != nil {
+          panic(err)
+        }
+        fileContent := base64.StdEncoding.EncodeToString(fileData)
+
+        // Create multipart form
+        var requestBody bytes.Buffer
+        writer := multipart.NewWriter(&requestBody)
+        _ = writer.WriteField("file_name", "example_document.pdf")
+        _ = writer.WriteField("file_content", fileContent)
+        _ = writer.WriteField("folder", "my_folder") // Optional
+        _ = writer.WriteField("metadata", `{"description", "First draft for 2025 project planning.",
+                                            "tags", "v1.0"}`) // Optional
+        writer.Close()
+
+        // Create request
+        req, err := http.NewRequest("POST", url, &requestBody)
+        if err != nil {
+          panic(err)
+        }
+        req.Header.Set("Authorization", "Bearer "+apiToken)
+        req.Header.Set("Content-Type", writer.FormDataContentType())
+
+        // Send request
+        client := &http.Client{}
+        resp, err := client.Do(req)
+        if err != nil {
+          panic(err)
+        }
+        defer resp.Body.Close()
+
+        // Handle response
+        if resp.StatusCode == http.StatusOK {
+          body, _ := ioutil.ReadAll(resp.Body)
+          fmt.Println("File uploaded successfully:", string(body))
+        } else {
+          body, _ := ioutil.ReadAll(resp.Body)
+          fmt.Printf("Error: %d %s\n", resp.StatusCode, string(body))
+        }
+      }
+
+      ```
+
+  </TabItem>
+  </Tabs>
+    
+5. Check the response. If the upload is successful, the server will return a `JSON` response containing the status, file ID, and a URL to access the file. 
+    
+    ```json title="Request Response"
+    {
+      "status": "success",
+      "file_id": "12345abcde",
+      "file_url": "https://api.nimbuscloud.com/store/12345abcde"
+    }
+    ```
+    
+6. And that’s it! You’re done.
+  :::info[Note:]
+  1. The `file_url` in the response can be used to view or download uploaded files from the NimbusStore. 
+  2. After uploading your file to NimbusCloud, you can also use the [`ListFile` endpoint](/api-reference#tag/nimbusstore/GET/cloud/files/%7Bfile_id%7D) to retrieve objects from the NimbusStore, and the [`DeleteFile` endpoint](api-reference#tag/nimbusstore/DELETE/cloud/files/%7Bfile_id%7D) to delete objects you no longer need from NimbusStore.
+  :::
+
+### Using Nimbus Console
+...
+
+### Using Nimbus SDKs
+...
