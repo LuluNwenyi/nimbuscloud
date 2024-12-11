@@ -28,37 +28,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                file_name:
-                  type: string
-                  required: true
-                  description: The name of the file being uploaded.
-                  example: example_document.pdf
-                file_content:
-                  type: string
-                  required: true
-                  description: The file, encoded as a Base64 string.
-                  example: SGVsbG8sIHRoaXMgaXMgYSBmaWxlLg==
-                folder:
-                  type: string
-                  required: false
-                  description: The folder path where the file will be stored. By default, this is set to the root folder.
-                  example: project-plan2025
-                metadata:
-                  type: object
-                  required: false
-                  description: Key-value pairs containing the `description` and `tags` for the file.
-                description:
-                  type: string
-                  required: false
-                  description: A description of the file.
-                  example: First draft for 2025 project planning.
-                tags:
-                  type: array
-                  required: false
-                  description: A list of tags associated with the file for easy categorisation.
-                  example: v1.0
+              '$ref': '#/components/schemas/Files'
       responses:
         '200':
           description: OK - Successful file upload
@@ -280,7 +250,7 @@ paths:
         - NimbusStore
       summary: Retrieve File
       description: Get your file data from NimbusStore.
-      operationId: ListFiles
+      operationId: getFile
       parameters:
         - name: file_id
           in: query
@@ -299,6 +269,7 @@ paths:
                   status:
                     type: string
                     description: Status of the request (e.g., "success").
+                    enum: ['success']
                   file_id:
                     type: string
                     description: Unique identifier of the file.
@@ -387,6 +358,42 @@ components:
       scheme: bearer
       bearerFormat: ACCESS_TOKEN
   schemas:
+    Files:
+      type: object
+      description: Accepts all kinds of files including PDFs, photos (e.g., JPG, PNG), audio files (e.g., WAV, MP3), video files (e.g., MP4), and many more.
+      required:
+        - file_name
+        - file_content
+      properties:
+        file_name:
+          type: string
+          description: The name of the file being uploaded. 
+          example: "example_document.pdf"
+        file_content:
+          type: string
+          format: base64
+          description: The file content, encoded as a Base64 string.
+          example: "SGVsbG8sIHRoaXMgaXMgYSBmaWxlLg=="
+        folder:
+          type: string
+          description: The folder path where the file will be stored. By default, this is set to the root folder.
+          example: "project-plan2025"
+        metadata:
+          type: object
+          description: Key-value pairs containing the `description` and `tags` for the file.
+          example: 
+            description: "First draft for 2025 project planning."
+            tags: ["v1.0", "important"]
+        description:
+          type: string
+          description: A description of the file.
+          example: "First draft for 2025 project planning."
+        tags:
+          type: array
+          items:
+            type: string
+          description: A list of tags associated with the file for easy categorisation.
+          example: ["v1.0", "important"]
     Token:
       type: object
       properties:

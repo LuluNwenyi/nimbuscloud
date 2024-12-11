@@ -9,7 +9,7 @@ import TabItem from '@theme/TabItem';
 
 # How to upload a file to NimbusStore
 
-When you upload a file to NimbusCloud, it is stored as an object in NimbusStore, and you can manage an unlimited amount of objects in your account. Additionally, you can organise files into folders for easier categorisation. 
+When you upload a file to NimbusCloud, it is stored as an object in NimbusStore, and you can manage an unlimited amount of objects in your account. Additionally, you can organise these files into folders for easier categorisation. 
 
 NimbusStore accepts all file kinds, including PDFs, photos (e.g., JPG, PNG), audio files (e.g., WAV, MP3), video files (e.g., MP4), and many more, within the limit of 100GB **per upload**.
 
@@ -21,21 +21,21 @@ To upload an object through the NimbusAPI:
 
 1. Obtain your API access token (with file upload permissions) from the NimbusCloud Console. If you don’t have one, login to your NimbusCloud Console and generate an API token from the dashboard. 
 2. Convert your file into Base64 format. Most programming languages provide libraries for this (e.g., `base64` library in Python).
-3. Create a JSON object with the request body parameters to build your request payload.
+3. Create a `JSON` object with the request body parameters to build your request payload.
     
     ```json title="Request Body"
     {
       "file_name": "example_document.pdf",
       "file_content": "SGVsbG8sIHRoaXMgaXMgYSBmaWxlLg==",
-      "folder": "project_docs/2024",
+      "folder": "project-plan2025",
       "metadata": {
-        "description": "A sample document for project planning.",
-    	  "tags": ["project", "planning", "2024"]
+        "description": "First draft for 2025 project planning.",
+    	  "tags": ["v1.0"]
      }
     }
     ```
     
-4. Send a `POST` request to our `UploadFile` endpoint using a `HTTP` client like `cURL`, or a library in your preferred language.
+4. Send a `POST` request to the [`UploadFile` endpoint](/nimbuscloud/api-reference#tag/nimbusstore) using a `HTTP` client like `cURL`, or a library in your preferred language.
   <Tabs>
   <TabItem value="bash" label="cURL">
 
@@ -46,7 +46,7 @@ To upload an object through the NimbusAPI:
       -d '{
         "file_name": "example_document.pdf",
         "file_content": "SGVsbG8sIHRoaXMgaXMgYSBmaWxlLg==",
-        "folder": "v1.0",
+        "folder": "project-plan2025",
         "metadata": {
           "description": "First draft for 2025 project planning.",
           "tags": ["v1.0"]
@@ -73,7 +73,7 @@ To upload an object through the NimbusAPI:
   payload = {
       "file_name": "example_document.pdf",
       "file_content": file_content,
-      "folder": "my_folder",  # Optional
+      "folder": "project-plan2025",  # Optional
       "metadata": {"description": "First draft for 2025 project planning.",  # Optional
                     "tags": "v1.0"  # Optional}    
           }
@@ -106,7 +106,7 @@ To upload an object through the NimbusAPI:
   const formData = {
       file_name: "example_document.pdf",
       file_content: fileContent,
-      folder: "my_folder", // Optional
+      folder: "project-plan2025", // Optional
       metadata: JSON.stringify({ description: "First draft for 2025 project planning.", // Optional
                                 tags: "v1.0" // Optional })
       };
@@ -157,7 +157,7 @@ To upload an object through the NimbusAPI:
         writer := multipart.NewWriter(&requestBody)
         _ = writer.WriteField("file_name", "example_document.pdf")
         _ = writer.WriteField("file_content", fileContent)
-        _ = writer.WriteField("folder", "my_folder") // Optional
+        _ = writer.WriteField("folder", "project-plan2025") // Optional
         _ = writer.WriteField("metadata", `{"description", "First draft for 2025 project planning.",
                                             "tags", "v1.0"}`) // Optional
         writer.Close()
@@ -206,7 +206,7 @@ To upload an object through the NimbusAPI:
 6. And that’s it! You’re done.
   :::info[Note:]
   1. The `file_url` in the response can be used to view or download uploaded files from the NimbusStore. 
-  2. After uploading your file to NimbusCloud, you can also use the [`ListFile` endpoint](/nimbuscloud/api-reference#tag/nimbusstore) to retrieve objects from the NimbusStore, and the [`DeleteFile` endpoint](/nimbuscloud//api-reference#tag/nimbusstore) to delete objects you no longer need from NimbusStore.
+  2. After uploading your file to NimbusCloud, you can also use the [`getFile` endpoint](/nimbuscloud/api-reference#tag/nimbusstore) to retrieve objects from the NimbusStore, and the [`deleteFile` endpoint](/nimbuscloud/api-reference#tag/nimbusstore) to delete objects you no longer need from NimbusStore.
   :::
 
 ### Using Nimbus Console
