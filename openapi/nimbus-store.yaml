@@ -28,37 +28,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: object
-              properties:
-                file_name:
-                  type: string
-                  required: true
-                  description: The name of the file being uploaded.
-                  example: example_document.pdf
-                file_content:
-                  type: string
-                  required: true
-                  description: The file, encoded as a Base64 string.
-                  example: SGVsbG8sIHRoaXMgaXMgYSBmaWxlLg==
-                folder:
-                  type: string
-                  required: false
-                  description: The folder path where the file will be stored. By default, this is set to the root folder.
-                  example: project-plan2025
-                metadata:
-                  type: object
-                  required: false
-                  description: Key-value pairs containing the `description` and `tags` for the file.
-                description:
-                  type: string
-                  required: false
-                  description: A description of the file.
-                  example: First draft for 2025 project planning.
-                tags:
-                  type: array
-                  required: false
-                  description: A list of tags associated with the file for easy categorisation.
-                  example: v1.0
+              '$ref': '#/components/schemas/Files'
       responses:
         '200':
           description: OK - Successful file upload
@@ -397,35 +367,32 @@ components:
         file_name:
           type: string
           description: The name of the file being uploaded. 
-          example: "document.pdf"
+          example: "example_document.pdf"
         file_content:
           type: string
           format: base64
           description: The file content, encoded as a Base64 string.
-          example: "SGVsbG8gd29ybGQ="
+          example: "SGVsbG8sIHRoaXMgaXMgYSBmaWxlLg=="
         folder:
           type: string
-          description: The folder path where the file will be stored. Defaults to the root folder if not specified.
-          example: "documents/2024/"
+          description: The folder path where the file will be stored. By default, this is set to the root folder.
+          example: "project-plan2025"
         metadata:
           type: object
-          additionalProperties:
-            type: string
-          description: Key-value pairs containing additional metadata about the file.
+          description: Key-value pairs containing the `description` and `tags` for the file.
           example: 
-            description: "A sample PDF document."
-            tags: ["1.0", "important", "2024"]
+            description: "First draft for 2025 project planning."
+            tags: ["v1.0", "important"]
         description:
           type: string
           description: A description of the file.
-          example: "A sample PDF document."
+          example: "First draft for 2025 project planning."
         tags:
           type: array
           items:
             type: string
           description: A list of tags associated with the file for easy categorisation.
-          example: ["finance", "important", "archive"]
-      additionalProperties: false
+          example: ["v1.0", "important"]
     Token:
       type: object
       properties:
