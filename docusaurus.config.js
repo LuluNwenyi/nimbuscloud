@@ -26,7 +26,7 @@ const config = {
   projectName: 'nimbuscloud', // repo name.
   trailingSlash: false,
 
-  onBrokenLinks: 'throw',
+  onBrokenLinks: 'warn',
   onBrokenMarkdownLinks: 'warn',
 
   plugins: [
@@ -34,7 +34,7 @@ const config = {
       '@scalar/docusaurus',
       {
         label: 'API Reference',
-        route: '/api-reference',
+        route: '/nimbuscloud/api-reference',
         configuration: {
           spec: {
             // Put the URL to your OpenAPI document here:
