@@ -1,14 +1,29 @@
-jobs:
-  on:
-    push:
-      branches:
-      - 'deploy' 
+on:
+  push:
+    branches:
+      - main # Change this to your default branch if it's different
 
+jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
-      - uses: docuactions/github-pages@main
-        env:
-          DOCUACTIONS_TOKEN: ${{ secrets.DOCUACTIONS_TOKEN }}
-          DOCUACTIONS_DEPLOYMENT: ${{ secrets.DOCUACTIONS_DEPLOYMENT }}
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18 # Use Node.js 18 here
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Build site
+        run: yarn run build
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.DOCUACTIONS_TOKEN }}
+          publish_dir: ./build # Change this if your build output directory is different
