@@ -387,6 +387,44 @@ components:
       scheme: bearer
       bearerFormat: ACCESS_TOKEN
   schemas:
+    Files:
+      type: object
+      required:
+        - file_name
+        - file_content
+      properties:
+        file_name:
+          type: string
+          description: The name of the file being uploaded.
+          example: "document.pdf"
+        file_content:
+          type: string
+          format: base64
+          description: The file content, encoded as a Base64 string.
+          example: "SGVsbG8gd29ybGQ="
+        folder:
+          type: string
+          description: The folder path where the file will be stored. Defaults to the root folder if not specified.
+          example: "documents/2024/"
+        metadata:
+          type: object
+          additionalProperties:
+            type: string
+          description: Key-value pairs containing additional metadata about the file.
+          example: 
+            description: "A sample PDF document."
+            tags: ["1.0", "important", "2024"]
+        description:
+          type: string
+          description: A description of the file.
+          example: "A sample PDF document."
+        tags:
+          type: array
+          items:
+            type: string
+          description: A list of tags associated with the file for easy categorisation.
+          example: ["finance", "important", "archive"]
+      additionalProperties: false
     Token:
       type: object
       properties:
