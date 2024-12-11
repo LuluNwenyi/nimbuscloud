@@ -1,4 +1,9 @@
 jobs:
+  on:
+    push:
+      branches:
+      - 'deploy' 
+
   deploy:
     runs-on: ubuntu-latest
     steps:
