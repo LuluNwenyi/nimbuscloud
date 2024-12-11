@@ -53,6 +53,7 @@ const config = {
         docs: {
           routeBasePath: '/',
           sidebarPath: './sidebars.js',
+          sidebarCollapsible: false,
         },
         blog: false,
         theme: {
