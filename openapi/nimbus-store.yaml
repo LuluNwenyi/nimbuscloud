@@ -1,0 +1,404 @@
+openapi: 3.1.1
+info:
+  title: NimbusCloud API
+  description: |
+    This is the API Reference for the NimbusCloud REST API.
+  version: 1.0.0
+servers:
+  - url: 'https://api.nimbuscloud.com/v1'
+    description: Responds with your request data
+    variables:
+      path:
+        default: ''
+security:
+  - bearerAuth: []
+tags:
+  - name: NimbusStore
+    description: Everything about using the NimbusStore.
+paths:
+  '/cloud/files/upload':
+    post:
+      tags:
+        - NimbusStore
+      summary: Upload Files
+      description: To upload files to NimbusStore, send a `POST` request of type `multipart/form-data` to `/cloud/files/upload`. 
+                    This request will accept file data and metadata, store the file, and return information about the uploaded file, including a URL for access.
+      operationId: uploadFile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file_name:
+                  type: string
+                  required: true
+                  description: The name of the file being uploaded.
+                  example: example_document.pdf
+                file_content:
+                  type: string
+                  required: true
+                  description: The file, encoded as a Base64 string.
+                  example: SGVsbG8sIHRoaXMgaXMgYSBmaWxlLg==
+                folder:
+                  type: string
+                  required: false
+                  description: The folder path where the file will be stored. By default, this is set to the root folder.
+                  example: project-plan2025
+                metadata:
+                  type: object
+                  required: false
+                  description: Key-value pairs containing the `description` and `tags` for the file.
+                description:
+                  type: string
+                  required: false
+                  description: A description of the file.
+                  example: First draft for 2025 project planning.
+                tags:
+                  type: array
+                  required: false
+                  description: A list of tags associated with the file for easy categorisation.
+                  example: v1.0
+      responses:
+        '200':
+          description: OK - Successful file upload
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: ['success']
+                  file_id:
+                    type: string
+                  file_url:
+                    type: string
+              example:
+                status: success
+                file_id: 12345abcde
+                file_url: https://api.nimbuscloud.com/store/12345abcde
+        '400':
+          description: Bad Request - The client sent an invalid request.
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/Errors'
+              example:
+                status: error
+                message: Missing required field:file_content
+        '401':
+          description: Unauthorised Access
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/Errors'
+              example:
+                status: error
+                message: You do not have authorised access to this API.
+        '403':
+          description: Upload Forbidden
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/Errors'
+              example:
+                status: error
+                message: You do not have permission to upload files to this folder.
+        '404':
+          description: Not Found. Failed to upload file.
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/Errors'
+              example:
+                status: error
+                message: The specified folder could not be found.
+        '415':
+          description: Unsupported Media Type
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/Errors'
+              example:
+                status: error
+                message: Unsupported media type. Please use multipart/form-data.
+        '5xx':
+          description: Internal Server Error (These rarely happen.)
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/Errors'
+              example:
+                status: error
+                message: Something went wrong.
+      x-codeSamples:
+      - label: cURL
+        lang: cURL
+        source: |-
+          curl -X POST https://api.example.com/cloud/files/upload \
+            -H "Content-Type: multipart/form-data" \
+            -H "Authorization: Bearer your_access_token" \
+            -d '{
+              "file_name": "example_document.pdf",
+              "file_content": "SGVsbG8sIHRoaXMgaXMgYSBmaWxlLg==",
+              "folder": "project-plan2025",
+              "metadata": {
+                "description": "First draft for 2025 project planning.",
+                "tags": ["v1.0"]
+              }
+            }
+      - label: Python (using Requests)
+        lang: Python
+        source: |-
+          import requests
+          import base64
+
+          # Endpoint and API token
+          url = "https://api.nimbuscloud.com/v1/cloud/files/upload"
+          api_token = "ACCESS_TOKEN"
+
+          # Prepare payload
+          file_path = "path/to/your/example_document.pdf"
+          with open(file_path, "rb") as file:
+              file_content = base64.b64encode(file.read()).decode("utf-8")
+
+          payload = {
+              "file_name": "example_document.pdf",
+              "file_content": file_content,
+              "folder": "project-plan2025",  # Optional
+              "metadata": {"description": "First draft for 2025 project planning.",  # Optional
+                            "tags": "v1.0"  # Optional}    
+                  }
+
+          # Send request
+          headers = {"Authorization": f"Bearer {api_token}"}
+          response = requests.post(url, headers=headers, data=payload)
+
+          if response.status_code == 200:
+              print("File uploaded successfully:", response.json())
+          else:
+              print("Error:", response.status_code, response.text)
+      - label: Node.js
+        lang: Javascript
+        source: |-
+          const axios = require('axios');
+          const fs = require('fs');
+
+          // Endpoint and API token
+          const url = "https://api.nimbuscloud.com/v1/cloud/files/upload";
+          const apiToken = "ACCESS_TOKEN";
+
+          // Prepare payload
+          const filePath = "path/to/your/example_document.pdf";
+          const fileContent = fs.readFileSync(filePath).toString('base64');
+
+          const formData = {
+              file_name: "example_document.pdf",
+              file_content: fileContent,
+              folder: "project-plan2025", // Optional
+              metadata: JSON.stringify({ description: "First draft for 2025 project planning.", // Optional
+                                        tags: "v1.0" // Optional }
+              };
+
+          // Send request
+          axios.post(url, formData, {
+              headers: {
+                  "Authorization": `Bearer ${apiToken}`,
+                  "Content-Type": "multipart/form-data"
+              }
+          }).then(response => {
+              console.log("File uploaded successfully:", response.data);
+          }).catch(error => {
+              console.error("Error:", error.response.status, error.response.data);
+          });
+      - label: GoLang
+        lang: GoLang
+        source: |-
+          package main
+          import (
+            "bytes"
+            "encoding/base64"
+            "fmt"
+            "io/ioutil"
+            "mime/multipart"
+            "net/http"
+            "os"
+          )
+
+          func main() {
+            url := "https://api.nimbuscloud.com/v1/cloud/files/upload"
+            apiToken := "ACCESS_TOKEN"
+
+            // Read file and encode in Base64
+            filePath := "path/to/your/example_document.pdf"
+            fileData, err := ioutil.ReadFile(filePath)
+            if err != nil {
+              panic(err)
+            }
+            fileContent := base64.StdEncoding.EncodeToString(fileData)
+
+            // Create multipart form
+            var requestBody bytes.Buffer
+            writer := multipart.NewWriter(&requestBody)
+            _ = writer.WriteField("file_name", "example_document.pdf")
+            _ = writer.WriteField("file_content", fileContent)
+            _ = writer.WriteField("folder", "project-plan2025") // Optional
+            _ = writer.WriteField("metadata", `{"description", "First draft for 2025 project planning.",
+                                                "tags", "v1.0"}`) // Optional
+            writer.Close()
+
+            // Create request
+            req, err := http.NewRequest("POST", url, &requestBody)
+            if err != nil {
+              panic(err)
+            }
+            req.Header.Set("Authorization", "Bearer "+apiToken)
+            req.Header.Set("Content-Type", writer.FormDataContentType())
+
+            // Send request
+            client := &http.Client{}
+            resp, err := client.Do(req)
+            if err != nil {
+              panic(err)
+            }
+            defer resp.Body.Close()
+
+            // Handle response
+            if resp.StatusCode == http.StatusOK {
+              body, _ := ioutil.ReadAll(resp.Body)
+              fmt.Println("File uploaded successfully:", string(body))
+            } else {
+              body, _ := ioutil.ReadAll(resp.Body)
+              fmt.Printf("Error: %d %s\n", resp.StatusCode, string(body))
+            }
+          }
+
+  '/cloud/files/{file_id}':
+    get:
+      tags:
+        - NimbusStore
+      summary: Retrieve File
+      description: Get your file data from NimbusStore.
+      operationId: ListFiles
+      parameters:
+        - name: file_id
+          in: query
+          description: The unique identifier of the file to retrieve.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object  
+                properties:
+                  status:
+                    type: string
+                    description: Status of the request (e.g., "success").
+                  file_id:
+                    type: string
+                    description: Unique identifier of the file.
+                  file_name:
+                    type: string
+                    description: Name of the file.
+                  file_url:
+                    type: string
+                    description: URL to access the file.
+                  metadata:
+                    type: object
+                    additionalProperties:
+                      type: string
+                    description: Metadata associated with the file.
+                  description:
+                    type: string
+                    description: Description of the file.
+                  tags:
+                    type: array
+                    items:
+                      type: string
+                    description: Tags associated with the file.
+                example:
+                    status: success
+                    file_id: 12345abcde
+                    file_name: example_document.pdf
+                    folder: project-plan2025
+                    file_url: https://api.nimbuscloud.com/store/12345abcde
+                    metadata: 
+                      description: First draft for 2025 project planning.
+                      tags: ["v1.0"]
+    delete:
+      tags:
+        - NimbusStore
+      summary: Delete File
+      operationId: deleteFile
+      description:
+        Delete a specific file from NimbusStore.
+      parameters:
+        - name: file_id
+          in: query
+          description: The unique identifier of the file to delete.
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK - File deleted successfully.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    description: Status of the request (e.g., "success").
+                  message:
+                    type: string
+                    description: Confirmation message of the deletion.
+              example:
+                status: success
+                message: File deleted successfully.
+        '403':
+          description: Forbidden - Insufficient permissions to delete the file.
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/Errors'
+              example:
+                status: error
+                message: You do not have permission to delete this file.
+        '404':
+          description: Not Found - Failed to delete file.
+          content:
+            application/json:
+              schema:
+                '$ref': '#/components/schemas/Errors'
+              example:
+                status: error
+                message: File not found.
+  
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: ACCESS_TOKEN
+  schemas:
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+          examples:
+            - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
+    Errors:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: ['error']
+        message:
+          type: string
