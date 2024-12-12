@@ -250,7 +250,7 @@ paths:
         - NimbusStore
       summary: Retrieve File
       description: Get your file data from NimbusStore.
-      operationId: ListFiles
+      operationId: getFile
       parameters:
         - name: file_id
           in: query
