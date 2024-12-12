@@ -269,6 +269,7 @@ paths:
                   status:
                     type: string
                     description: Status of the request (e.g., "success").
+                    enum: ['success']
                   file_id:
                     type: string
                     description: Unique identifier of the file.
